@@ -1,6 +1,4 @@
 IMG_SIZE = 32
-import cv2
-import numpy as np
 
 def preprocess_image(img):
     # Resize, normalize and expand dims
