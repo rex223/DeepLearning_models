@@ -463,11 +463,11 @@ def get_sign_info(class_id):
 def display_prediction_results(image, prediction_results):
     class_id, class_name, confidence = prediction_results
     
-    col1, col2 = st.columns([1, 1])
+    col1, col2 = st.columns([2, 1])
     
     with col1:
         try:
-            st.image(image, caption="Traffic Sign", width=600)
+            st.image(image, caption="Traffic Sign", width=500)
         except Exception as e:
             st.error(f"Error displaying image: {e}")
     
@@ -481,10 +481,10 @@ def display_prediction_results(image, prediction_results):
         st.markdown(f"<b>Confidence:</b> {confidence:.2%}", unsafe_allow_html=True)
         st.progress(float(confidence))
         
-        if confidence > 0.9:
+        if confidence > 0.79:
             certainty = "High Certainty"
             color = "var(--success-color)"
-        elif confidence > 0.7:
+        elif confidence > 0.55:
             certainty = "Moderate Certainty"
             color = "var(--warning-color)"
         else:
@@ -605,7 +605,7 @@ def main():
                 st.session_state.camera_on = not st.session_state.camera_on
                 st.rerun()  
             if st.session_state.camera_on:
-                camera_img = st.camera_input("Take a picture of a traffic sign", key="camera")
+                camera_img = st.camera_input("Take a picture of a traffic sign", key="camera",width=650)
                 
                 if camera_img is not None:
                     # Convert to PIL Image
