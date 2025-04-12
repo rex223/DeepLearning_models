@@ -1,6 +1,6 @@
 numpy==1.26.4
 pandas==2.2.1
-tensorflow==2.15.0
+tensorflow>=2.14,<2.16
 scikit-learn==1.4.0
 opencv-python==4.9.0
 matplotlib==3.8.3
