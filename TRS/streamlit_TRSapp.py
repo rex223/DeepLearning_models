@@ -25,12 +25,12 @@ st.markdown("""
         --warning-color: #ff9800;
     }
 
-    /* Main background with custom image */
+    /* Main background */
     .stApp {
-        background: linear-gradient(rgba(17, 24, 39, 0.7), rgba(17, 24, 39, 0.7)),
-        url('https://media.istockphoto.com/id/641670288/photo/many-road-signs.jpg?s=2048x2048&w=is&k=20&c=-cqqMY3I-WURuTAkpyywE_JXryT_S5jNiN2Yj6Z-EV4=') center/cover no-repeat !important;
-        color: var(--text-color); 
+        background-color: #34495E;
+        color: var(--text-color);
     }
+
     /* Headers */
     h1, h2, h3, h4, h5, h6 {
         color: var(--accent-color) !important;
@@ -69,12 +69,20 @@ st.markdown("""
         padding-top: 0 !important;
     }
 
-    /* Header styling with blue background */
     header[data-testid="stHeader"] {
-        background-color: var(--accent-color) !important;
-        background: linear-gradient(90deg, #0c4b6e, var(--accent-color)) !important;
-        margin-bottom: 0 !important;
-        padding-bottom: 1rem !important;
+        background: 
+            /* Blue gradient at the end (adjust 30% to control transition point) */
+            linear-gradient(90deg, transparent 0%, #34495E 36%, #00c6ff 100%),
+            /* First road sign image (left-aligned) */
+            url('https://www.shutterstock.com/image-photo/road-signs-banner-traffic-laws-260nw-2344101155.jpg') left 0% center/contain no-repeat,
+            /* Second road sign image (centered) */
+            right 10% center/contain no-repeat;
+        
+            background-blend-mode: overlay;
+            height: 10vh !important;
+            min-height: 5vh !important;
+            padding: 3rem 2rem !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
     }
 
     /* Success message styling */
