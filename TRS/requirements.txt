@@ -2,9 +2,9 @@ numpy==1.26.4
 pandas==2.2.1
 tensorflow
 scikit-learn==1.4.0
-opencv-python>=4.8,<4.11
+opencv-python-headless==4.8.0.74
 matplotlib==3.8.3
 seaborn==0.13.2
-ultralytics==8.3.107
+ultralytics==8.0.0
 Pillow==11.1.0
 PyYAML==6.0.2

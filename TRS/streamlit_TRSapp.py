@@ -7,12 +7,7 @@ import tensorflow as tf
 from ultralytics import YOLO
 from preprocess_image import preprocess_image
 from predict_image import *
-try:
-    import cv2
-except ImportError:
-    import os
-    os.system("pip install opencv-python-headless")
-    import cv2
+import cv2
 
 
 # Set page configuration and title
