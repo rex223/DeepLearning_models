@@ -1,7 +1,14 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+os.environ['CUDA_VISIBLE_DEVICES'] = '' 
+os.environ['YOLO_VERBOSE'] = 'False'
+
 import nest_asyncio
 nest_asyncio.apply()
-import os
-os.environ["YOLO_VERBOSE"] = "False" 
+
+# ===== STREAMLIT CONFIG =====
+import streamlit as st
+st.set_page_config(layout="wide")
 import streamlit as st
 import cv2
 import numpy as np
