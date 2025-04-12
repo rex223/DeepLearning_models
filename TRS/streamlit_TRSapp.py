@@ -1,5 +1,7 @@
 import nest_asyncio
 nest_asyncio.apply()
+import os
+os.environ["YOLO_VERBOSE"] = "False" 
 import streamlit as st
 import cv2
 import numpy as np
