@@ -1,11 +1,6 @@
-try:
-    import nest_asyncio
-    nest_asyncio.apply()
-except ImportError:
-    st.error("nest_asyncio not installed! Check requirements.txt.")
+import nest_asyncio
+nest_asyncio.apply()
 import streamlit as st
-st.set_option('server.fileWatcherType', 'none')  # Disable watcher
-
 import cv2
 import numpy as np
 from PIL import Image
