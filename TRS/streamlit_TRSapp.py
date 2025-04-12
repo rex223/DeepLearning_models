@@ -3,21 +3,34 @@
 # os.environ['CUDA_VISIBLE_DEVICES'] = '' 
 # os.environ['YOLO_VERBOSE'] = 'False'
 
-# import nest_asyncio
-# nest_asyncio.apply()
+# Environment variables should be set before any imports
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+os.environ['CUDA_VISIBLE_DEVICES'] = '' 
+os.environ['YOLO_VERBOSE'] = 'False'
 
-# ===== STREAMLIT CONFIG =====
-import streamlit as st
-import cv2
-import numpy as np
-from PIL import Image
-import io
+# Fix for asyncio event loop issues
+import nest_asyncio
+nest_asyncio.apply()
+
+# Standard libraries first
 import time
+import io
+import numpy as np
+import streamlit as st
 import tensorflow as tf
-from ultralytics import YOLO
+
+# PyTorch import with proper error handling
+import torch
+torch.classes_path = None  # Prevent __path__ attribute access that's causing the error
+
+# Image processing libraries
+import cv2
+from PIL import Image
+
 from preprocess_image import preprocess_image
 from predict_image import *
-import torch
+from ultralytics import YOLO
 
 # Set page configuration and title
 st.set_page_config(page_title="Traffic Sign Recognition", layout="wide", initial_sidebar_state="expanded")
