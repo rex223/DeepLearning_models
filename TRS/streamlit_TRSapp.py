@@ -34,7 +34,7 @@ torch.classes_path = None  # Prevent __path__ attribute access that's causing th
 
 # Image processing libraries
 from PIL import Image
-# Import OpenCV after everything else - this might help
+# Import OpenCV
 import cv2
     
 # from preprocess_image import preprocess_image
