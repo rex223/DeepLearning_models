@@ -1,4 +1,8 @@
+import nest_asyncio
+nest_asyncio.apply()
 import streamlit as st
+st.set_option('server.fileWatcherType', 'none')
+
 import cv2
 import numpy as np
 from PIL import Image
