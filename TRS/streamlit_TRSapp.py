@@ -640,7 +640,7 @@ def main():
         
         if uploaded_file is not None:
             # Convert to PIL Image
-            image = Image.open(uploaded_file, mode='RGB')
+            image = Image.open(uploaded_file)
             img_array = np.array(image)
             
             with st.spinner("Analyzing traffic sign..."):
