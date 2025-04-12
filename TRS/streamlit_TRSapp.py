@@ -250,10 +250,14 @@ st.markdown("""
 
 # Loading the models
 def load_models():
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    model_path = os.path.join(base_dir, "final_model.h5")
+    yolo_model_path = os.path.join(base_dir, "best.pt")
+    
     models = {}
     try:
-        models['cnn'] = tf.keras.models.load_model('final_model.h5')
-        models['yolo'] = YOLO('yolo_final.pt')
+        models['cnn'] = tf.keras.models.load_model(model_path)
+        models['yolo'] = YOLO(yolo_model_path)
         return models
     except Exception as e:
         st.error(f"Error loading models: {e}")
@@ -376,16 +380,16 @@ WARNING_MESSAGES = {
     42: "End of no passing restriction for vehicles over 3.5 metric tons"
 }
 
-def load_model():
-    """
-    Load the trained model from the saved file
-    """
-    try:
-        model = tf.keras.models.load_model('final_model.h5')
-        return model
-    except Exception as e:
-        print(f"Error loading model: {e}")
-        return None
+# def load_model():
+#     """
+#     Load the trained model from the saved file
+#     """
+#     try:
+#         model = tf.keras.models.load_model('final_model.h5')
+#         return model
+#     except Exception as e:
+#         print(f"Error loading model: {e}")
+#         return None
 
 def predict_image(img, model=None, confidence_threshold=0.5):
     """
