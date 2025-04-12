@@ -1,4 +1,5 @@
 import streamlit as st
+import cv2
 import numpy as np
 from PIL import Image
 import io
@@ -7,8 +8,7 @@ import tensorflow as tf
 from ultralytics import YOLO
 from preprocess_image import preprocess_image
 from predict_image import *
-import cv2
-
+import torch
 
 # Set page configuration and title
 st.set_page_config(page_title="Traffic Sign Recognition", layout="wide", initial_sidebar_state="expanded")
