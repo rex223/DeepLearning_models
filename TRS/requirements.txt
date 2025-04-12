@@ -17,3 +17,4 @@ psutil
 py-cpuinfo
 pandas>=1.1.4
 ultralytics-thop>=2.0.0
+nest_asyncio>=1.0.0
