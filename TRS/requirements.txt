@@ -8,9 +8,3 @@ seaborn==0.13.2
 ultralytics==8.3.107
 Pillow==11.1.0
 PyYAML==6.0.2
-onnx2tf
-sng4onnx=1.0.1
-onnx-graphsurgeon
-ai-edge-litert
-sng4onnx
-tflite-support
