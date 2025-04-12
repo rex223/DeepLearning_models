@@ -605,7 +605,7 @@ def main():
                 st.session_state.camera_on = not st.session_state.camera_on
                 st.rerun()  
             if st.session_state.camera_on:
-                camera_img = st.camera_input("Take a picture of a traffic sign", key="camera",width=650)
+                camera_img = st.camera_input("Take a picture of a traffic sign", key="camera")
                 
                 if camera_img is not None:
                     # Convert to PIL Image
