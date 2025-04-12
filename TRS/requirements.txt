@@ -2,7 +2,7 @@ numpy==1.26.4
 pandas==2.2.1
 tensorflow
 scikit-learn==1.4.0
-opencv-python==4.9.0
+opencv-python>=4.8,<4.11
 matplotlib==3.8.3
 seaborn==0.13.2
 ultralytics==8.3.107
