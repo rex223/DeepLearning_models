@@ -1,5 +1,4 @@
 import streamlit as st
-import cv2
 import numpy as np
 from PIL import Image
 import io
@@ -8,6 +7,13 @@ import tensorflow as tf
 from ultralytics import YOLO
 from preprocess_image import preprocess_image
 from predict_image import *
+try:
+    import cv2
+except ImportError:
+    import os
+    os.system("pip install opencv-python-headless")
+    import cv2
+
 
 # Set page configuration and title
 st.set_page_config(page_title="Traffic Sign Recognition", layout="wide", initial_sidebar_state="expanded")
