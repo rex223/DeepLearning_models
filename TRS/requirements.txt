@@ -8,3 +8,4 @@ seaborn==0.13.2
 ultralytics==8.0.0
 Pillow==11.1.0
 PyYAML==6.0.2
+torch==2.6.0
