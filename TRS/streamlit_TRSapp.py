@@ -5,16 +5,16 @@ os.environ['CUDA_VISIBLE_DEVICES'] = ''
 os.environ['YOLO_VERBOSE'] = 'False'
 
 # Set up async event loop
-import asyncio
-try:
-    asyncio.set_event_loop_policy(asyncio.DefaultEventLoopPolicy())
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-except Exception:
-    pass
+# import asyncio
+# try:
+#     asyncio.set_event_loop_policy(asyncio.DefaultEventLoopPolicy())
+#     loop = asyncio.new_event_loop()
+#     asyncio.set_event_loop(loop)
+# except Exception:
+#     pass
 
-import nest_asyncio
-nest_asyncio.apply()
+# import nest_asyncio
+# nest_asyncio.apply()
 
 # PyTorch import with patches
 import torch
