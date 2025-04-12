@@ -1,10 +1,10 @@
-import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
-os.environ['CUDA_VISIBLE_DEVICES'] = '' 
-os.environ['YOLO_VERBOSE'] = 'False'
+# import os
+# os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+# os.environ['CUDA_VISIBLE_DEVICES'] = '' 
+# os.environ['YOLO_VERBOSE'] = 'False'
 
-import nest_asyncio
-nest_asyncio.apply()
+# import nest_asyncio
+# nest_asyncio.apply()
 
 # ===== STREAMLIT CONFIG =====
 import streamlit as st
