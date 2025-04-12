@@ -4,7 +4,7 @@ streamlit==1.32.2
 matplotlib==3.8.3
 seaborn==0.13.2
 ultralytics==8.3.0
-Pillow==11.1.0
+Pillow>=7.1.0,<11
 numpy>=1.23.0,<=2.1.1
 opencv-python-headless==4.9.0.80
 pyyaml>=5.3.1
