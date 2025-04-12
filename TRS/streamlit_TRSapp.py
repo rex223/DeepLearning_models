@@ -35,20 +35,11 @@ torch.classes_path = None  # Prevent __path__ attribute access that's causing th
 # Image processing libraries
 from PIL import Image
 # Import OpenCV after everything else - this might help
-try:
-    import cv2
-except ImportError:
-    st.error("OpenCV could not be imported. Some functionality may be limited.")
-    # Provide a minimal fallback if needed
-    class CV2Fallback:
-        def __getattr__(self, name):
-            return lambda *args, **kwargs: None
-    cv2 = CV2Fallback()
+import cv2
     
 # from preprocess_image import preprocess_image
 # from predict_image import *
-from ultralytics import YOLO
-
+from ultralytics.models.yolo.model import YOLO
 # Set page configuration and title
 st.set_page_config(page_title="Traffic Sign Recognition", layout="wide", initial_sidebar_state="expanded")
 
