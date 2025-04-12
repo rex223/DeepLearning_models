@@ -6,7 +6,7 @@ seaborn==0.13.2
 ultralytics==8.3.0
 Pillow>=7.1.0,<11
 numpy>=1.23.0,<=2.1.1
-opencv-python-headless==4.9.0.80
+opencv-python-headless
 pyyaml>=5.3.1
 requests>=2.23.0
 scipy>=1.4.1

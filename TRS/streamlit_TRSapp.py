@@ -1,17 +1,25 @@
-# import os
-# os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
-# os.environ['CUDA_VISIBLE_DEVICES'] = '' 
-# os.environ['YOLO_VERBOSE'] = 'False'
-
-# Environment variables should be set before any imports
+# Environment variables first
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 os.environ['CUDA_VISIBLE_DEVICES'] = '' 
 os.environ['YOLO_VERBOSE'] = 'False'
 
-# Fix for asyncio event loop issues
+# Set up async event loop
+import asyncio
+try:
+    asyncio.set_event_loop_policy(asyncio.DefaultEventLoopPolicy())
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+except Exception:
+    pass
+
 import nest_asyncio
 nest_asyncio.apply()
+
+# PyTorch import with patches
+import torch
+torch.classes_path = None
+torch._C._get_tracing_state = lambda: None  # Prevents the error related to tracing state
 
 # Standard libraries first
 import time
@@ -25,9 +33,18 @@ import torch
 torch.classes_path = None  # Prevent __path__ attribute access that's causing the error
 
 # Image processing libraries
-import cv2
 from PIL import Image
-
+# Import OpenCV after everything else - this might help
+try:
+    import cv2
+except ImportError:
+    st.error("OpenCV could not be imported. Some functionality may be limited.")
+    # Provide a minimal fallback if needed
+    class CV2Fallback:
+        def __getattr__(self, name):
+            return lambda *args, **kwargs: None
+    cv2 = CV2Fallback()
+    
 from preprocess_image import preprocess_image
 from predict_image import *
 from ultralytics import YOLO
