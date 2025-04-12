@@ -409,9 +409,7 @@ def predict_image(img, model=None, confidence_threshold=0.5):
     
     # If model isn't provided, load it
     if model is None:
-        model = load_model()
-        if model is None:
-            return -1, 0.0
+        return -1, 0.0
     
     # Ensure image is in correct shape with batch dimension
     if len(img.shape) == 3:
@@ -539,6 +537,28 @@ def detect_and_classify(img_array, cnn_model, yolo_model):
     except Exception as e:
         st.error(f"Error during detection/classification: {e}")
         return (None, "Detection Error", 0.0)
+    
+# EXIF Correction Function
+def correct_exif_orientation(image):
+    try:
+        exif = image._getexif()
+        if exif is not None:
+            for orientation_tag, tag_value in ExifTags.TAGS.items():
+                if tag_value == 'Orientation':
+                    break
+
+            orientation = exif.get(orientation_tag, None)
+
+            if orientation == 3:
+                image = image.rotate(180, expand=True)
+            elif orientation == 6:
+                image = image.rotate(270, expand=True)
+            elif orientation == 8:
+                image = image.rotate(90, expand=True)
+    except Exception as e:
+        print("EXIF orientation correction skipped:", e)
+
+    return image
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 
 
@@ -590,6 +610,7 @@ def main():
                 if camera_img is not None:
                     # Convert to PIL Image
                     image = Image.open(camera_img)
+                    corrected_image = correct_exif_orientation(image)
                     img_array = np.array(image)
                     
                     with st.spinner("Analyzing traffic sign..."):
@@ -619,7 +640,7 @@ def main():
         
         if uploaded_file is not None:
             # Convert to PIL Image
-            image = Image.open(uploaded_file)
+            image = Image.open(uploaded_file, mode='RGB')
             img_array = np.array(image)
             
             with st.spinner("Analyzing traffic sign..."):
