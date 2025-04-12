@@ -39,7 +39,7 @@ import cv2
     
 # from preprocess_image import preprocess_image
 # from predict_image import *
-from ultralytics.models.yolo.model import YOLO
+from ultralytics import YOLO
 # Set page configuration and title
 st.set_page_config(page_title="Traffic Sign Recognition", layout="wide", initial_sidebar_state="expanded")
 
