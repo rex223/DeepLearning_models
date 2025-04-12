@@ -264,7 +264,7 @@ def load_models():
         return None
 def preprocess_image(img):
     # Resize, normalize and expand dims
-    
+    IMG_SIZE=32
     img = cv2.resize(img, (IMG_SIZE, IMG_SIZE))
     # img=cv2.imread(img)
     img = img.astype('float32') / 255.0
