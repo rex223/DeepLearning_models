@@ -8,8 +8,6 @@ nest_asyncio.apply()
 
 # ===== STREAMLIT CONFIG =====
 import streamlit as st
-st.set_page_config(layout="wide")
-import streamlit as st
 import cv2
 import numpy as np
 from PIL import Image
