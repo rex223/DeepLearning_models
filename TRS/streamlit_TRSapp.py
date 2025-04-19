@@ -675,6 +675,12 @@ def main():
         camera_col1, camera_col2 = st.columns([3, 1])
 
         with camera_col1:
+            model_choice = st.radio(
+                "Choose Model for Detection:",
+                ["Only CNN", "YOLO + CNN"],
+                index=0,
+                key="camera_model_choice"
+            )
             # Toggle camera on/off
             if st.button("Turn Camera On" if not st.session_state.camera_on else "Turn Camera Off"):
                 st.session_state.camera_on = not st.session_state.camera_on
@@ -688,11 +694,17 @@ def main():
                     image = Image.open(camera_img)
                     corrected_image = correct_exif_orientation(image)
                     img_array = np.array(corrected_image)
+                    if img_array.shape[-1] == 4:
+                        img_array = img_array[:, :, :3]
 
                     with st.spinner("🔍 Detecting and classifying traffic signs..."):
-                        predictions = detect_and_classify(img_array, model, yolo_model)
+                        #Detection by user selection
+                        if model_choice == "YOLO + CNN":
+                            predictions = detect_and_classify(img_array, model, yolo_model)
+                        else:
+                            predictions = process_image_and_predict(img_array, model)
 
-                        # Check if any predictions were returned
+                        # Display results
                         if isinstance(predictions, list) and len(predictions) > 0:
                             display_prediction_results(predictions)
                         else:
