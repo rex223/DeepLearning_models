@@ -630,7 +630,7 @@ def main():
                     img_array = np.array(corrected_image)
 
                     with st.spinner("🔍 Detecting and classifying traffic signs..."):
-                           predictions = detect_and_classify(img_array, cnn_model, yolo_model)
+                        predictions = detect_and_classify(img_array, cnn_model, yolo_model)
 
                         # Check if any predictions were returned
                         if isinstance(predictions, list) and len(predictions) > 0:
