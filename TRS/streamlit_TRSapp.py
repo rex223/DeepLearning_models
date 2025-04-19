@@ -271,7 +271,7 @@ def preprocess_image(img):
     img = np.expand_dims(img, axis=0)
     return img
 def display_image(img):
-    st.image(img, caption="Input Image", use_column_width=True)
+    st.image(img, caption="Input Image", use_container_width=True)
     st.write("Image displayed successfully.")
     
 # Index mapping for your model
@@ -479,7 +479,7 @@ def display_prediction_results(prediction_results):
 
         with col1:
             if cropped is not None:
-                st.image(cropped, caption=f"Detected Sign {i+1}", use_column_width=True)
+                st.image(cropped, caption=f"Detected Sign {i+1}", use_container_width=True)
             else:
                 st.warning("❌ No cropped image available.")
 
@@ -519,7 +519,7 @@ def display_single_prediction(img_array, prediction_result):
     col1, col2 = st.columns([2, 1])
     
     with col1:
-        st.image(img_array, caption="Uploaded Image", use_column_width=True)
+        st.image(img_array, caption="Uploaded Image", use_container_width=True)
     
     with col2:
         st.markdown(f"<h2>Prediction Results</h2>", unsafe_allow_html=True)
