@@ -461,6 +461,10 @@ def get_sign_info(class_id):
     return sign_name, warning
 
 def display_prediction_results(prediction_results):
+    """
+    Display prediction results from YOLO + CNN pipeline (camera path)
+    prediction_results: List of dictionaries with prediction information
+    """
     if not prediction_results:
         st.warning("No predictions to display.")
         return
@@ -500,6 +504,44 @@ def display_prediction_results(prediction_results):
                        unsafe_allow_html=True)
 
 
+def display_single_prediction(img_array, prediction_result):
+    """
+    Display prediction results from CNN-only pipeline (upload path)
+    img_array: The original image array
+    prediction_result: Tuple of (class_id, class_name, confidence)
+    """
+    class_id, class_name, confidence = prediction_result
+    
+    if class_id is None:
+        st.warning("❌ No prediction available or error occurred.")
+        return
+        
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        st.image(img_array, caption="Uploaded Image", use_column_width=True)
+    
+    with col2:
+        st.markdown(f"<h2>Prediction Results</h2>", unsafe_allow_html=True)
+        st.markdown(f"<div class='prediction-result'><b>Sign Type:</b> {class_name}</div>", 
+                   unsafe_allow_html=True)
+        st.markdown(f"<b>Confidence:</b> {confidence:.2%}", unsafe_allow_html=True)
+        st.progress(float(confidence))
+        
+        if confidence > 0.79:
+            certainty = "High Certainty"
+            color = "var(--success-color)"
+        elif confidence > 0.55:
+            certainty = "Moderate Certainty"
+            color = "var(--warning-color)"
+        else:
+            certainty = "Low Certainty"
+            color = "red"
+            
+        st.markdown(f"<p style='color: {color}; font-weight: bold;'>{certainty}</p>", 
+                   unsafe_allow_html=True)
+
+
 def process_image_and_predict(image, model):
     try:
         # Preprocess_image function
@@ -523,7 +565,7 @@ def detect_and_classify(img_array, cnn_model, yolo_model):
         # Check if road signs were detected
         if len(results.boxes) == 0:
             st.warning("❌ No road sign detected in the image.")
-            return (None, "No sign detected", 0.0)
+            return []
 
         all_predictions = []
 
@@ -543,13 +585,14 @@ def detect_and_classify(img_array, cnn_model, yolo_model):
                 "class_id": class_id,
                 "class_name": class_name,
                 "confidence": confidence,
-                "bbox": (x1, y1, x2, y2)
+                "bbox": (x1, y1, x2, y2),
+                "cropped_image": cropped  # Include the cropped image in results
             })
         return all_predictions
     
     except Exception as e:
         st.error(f"Error during detection/classification: {e}")
-        return (None, "Detection Error", 0.0)
+        return []
     
 # EXIF Correction Function
 def correct_exif_orientation(image):
@@ -609,7 +652,7 @@ def main():
         st.markdown("<h2>Live Camera Recognition</h2>", unsafe_allow_html=True)
         st.markdown("Position a traffic sign in front of your camera and capture the image.")
 
-            # Initialize session state for camera toggle
+        # Initialize session state for camera toggle
         if 'camera_on' not in st.session_state:
             st.session_state.camera_on = False
 
@@ -625,7 +668,7 @@ def main():
                 camera_img = st.camera_input("Take a picture of a traffic sign", key="camera")
 
                 if camera_img is not None:
-                     # Load and correct image
+                    # Load and correct image
                     image = Image.open(camera_img)
                     corrected_image = correct_exif_orientation(image)
                     img_array = np.array(corrected_image)
@@ -638,8 +681,6 @@ def main():
                             display_prediction_results(predictions)
                         else:
                             st.warning("No traffic signs detected.")
-
-
         
         with camera_col2:
             st.markdown("""
@@ -663,13 +704,15 @@ def main():
         if uploaded_file is not None:
             # Convert to PIL Image
             image = Image.open(uploaded_file)
-            img_array = np.array(image)
+            # Apply EXIF correction
+            corrected_image = correct_exif_orientation(image)
+            img_array = np.array(corrected_image)
             
             with st.spinner("Analyzing traffic sign..."):
                 prediction_results = process_image_and_predict(img_array, model)
                 
-                # Display prediction
-                display_prediction_results(img_array, prediction_results)
+                # Display prediction using the single prediction display function
+                display_single_prediction(img_array, prediction_results)
     
     # Add an FAQ section at the bottom
     with st.expander("ℹ️ FAQs about Traffic Sign Recognition"):
