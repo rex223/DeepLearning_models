@@ -602,50 +602,50 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-        tab1, tab2 = st.tabs(["📷 Camera Input", "🖼️ Image Upload"])
+    tab1, tab2 = st.tabs(["📷 Camera Input", "🖼️ Image Upload"])
 
-        with tab1:
-            st.markdown("<h2>Live Camera Recognition</h2>", unsafe_allow_html=True)
-            st.markdown("Position a traffic sign in front of your camera and capture the image.")
+    with tab1:
+        st.markdown("<h2>Live Camera Recognition</h2>", unsafe_allow_html=True)
+        st.markdown("Position a traffic sign in front of your camera and capture the image.")
 
             # Initialize session state for camera toggle
-            if 'camera_on' not in st.session_state:
-                st.session_state.camera_on = False
+        if 'camera_on' not in st.session_state:
+            st.session_state.camera_on = False
 
-            camera_col1, camera_col2 = st.columns([3, 1])
+        camera_col1, camera_col2 = st.columns([3, 1])
 
-            with camera_col1:
-                # Toggle camera on/off
-                if st.button("Turn Camera On" if not st.session_state.camera_on else "Turn Camera Off"):
-                    st.session_state.camera_on = not st.session_state.camera_on
-                    st.rerun()
+        with camera_col1:
+            # Toggle camera on/off
+            if st.button("Turn Camera On" if not st.session_state.camera_on else "Turn Camera Off"):
+                st.session_state.camera_on = not st.session_state.camera_on
+                st.rerun()
 
-                if st.session_state.camera_on:
-                    camera_img = st.camera_input("Take a picture of a traffic sign", key="camera")
+            if st.session_state.camera_on:
+                camera_img = st.camera_input("Take a picture of a traffic sign", key="camera")
 
-                    if camera_img is not None:
-                        # Load and correct image
-                        image = Image.open(camera_img)
-                        corrected_image = correct_exif_orientation(image)
-                        img_array = np.array(corrected_image)
+                if camera_img is not None:
+                     # Load and correct image
+                    image = Image.open(camera_img)
+                    corrected_image = correct_exif_orientation(image)
+                    img_array = np.array(corrected_image)
 
-                        with st.spinner("🔍 Detecting and classifying traffic signs..."):
-                            predictions = detect_and_classify(img_array, cnn_model, yolo_model)
+                    with st.spinner("🔍 Detecting and classifying traffic signs..."):
+                           predictions = detect_and_classify(img_array, cnn_model, yolo_model)
 
-                            # Check if any predictions were returned
-                            if isinstance(predictions, list) and len(predictions) > 0:
-                                for pred in predictions:
-                                    x1, y1, x2, y2 = pred["bbox"]
-                                    cropped_img = img_array[y1:y2, x1:x2]
+                        # Check if any predictions were returned
+                        if isinstance(predictions, list) and len(predictions) > 0:
+                            for pred in predictions:
+                                x1, y1, x2, y2 = pred["bbox"]
+                                cropped_img = img_array[y1:y2, x1:x2]
 
-                                    # Display each prediction
-                                    display_prediction_results(cropped_img, (
-                                        pred["class_id"],
-                                        pred["class_name"],
-                                        pred["confidence"]
-                                    ))
-                            else:
-                                st.warning("No traffic signs detected.")
+                                # Display each prediction
+                                display_prediction_results(cropped_img, (
+                                    pred["class_id"],
+                                    pred["class_name"],
+                                    pred["confidence"]
+                                ))
+                        else:
+                            st.warning("No traffic signs detected.")
 
 
         
