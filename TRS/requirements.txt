@@ -5,4 +5,3 @@ streamlit==1.44.1
 tensorflow==2.19.0
 torch==2.4.0
 ultralytics
-pip==25.0.1
