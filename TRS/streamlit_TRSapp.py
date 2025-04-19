@@ -27,7 +27,7 @@ import io
 import numpy as np
 import streamlit as st
 import tensorflow as tf
-
+import warnings
 # PyTorch import with proper error handling
 import torch
 torch.classes_path = None  # Prevent __path__ attribute access that's causing the error
@@ -596,28 +596,44 @@ def detect_and_classify(img_array, cnn_model, yolo_model):
     
 # EXIF Correction Function
 def correct_exif_orientation(image):
-    try:
-        exif = image._getexif()
-        if exif is not None:
-            orientation_key = next((k for k, v in ExifTags.TAGS.items() if v == 'Orientation'), None)
-            if orientation_key is not None:
-                orientation = exif.get(orientation_key, None)
-
-                if orientation == 3:
-                    image = image.rotate(180, expand=True)
-                elif orientation == 6:
-                    image = image.rotate(270, expand=True)
-                elif orientation == 8:
-                    image = image.rotate(90, expand=True)
-    except Exception as e:
-        print("Manual EXIF orientation correction skipped:", e)
-# PIllow ImageOps EXIF Transpose
-    # This is a fallback in case the manual correction fails
+    """
+    Corrects image orientation based on EXIF data.
+    Returns the corrected PIL Image.
+    """
+    # Method 1: Use Pillow's built-in transpose (most reliable)
     try:
         image = ImageOps.exif_transpose(image)
+        return image
     except Exception as e:
-        print("ImageOps.exif_transpose fallback skipped:", e)
+        warnings.warn(f"Primary EXIF correction failed: {str(e)}")
+    
+    # Method 2: Manual fallback (only if first method fails)
+    try:
+        if not hasattr(image, '_getexif') or image._getexif() is None:
+            return image
+            
+        exif = image._getexif()
+        orientation_key = [k for k, v in ExifTags.TAGS.items() if v == 'Orientation'][0]
+        orientation = exif.get(orientation_key, 1)  # Default to 1 (normal)
 
+        # Handle all possible orientation cases
+        if orientation == 2:
+            image = image.transpose(Image.FLIP_LEFT_RIGHT)
+        elif orientation == 3:
+            image = image.rotate(180)
+        elif orientation == 4:
+            image = image.rotate(180).transpose(Image.FLIP_LEFT_RIGHT)
+        elif orientation == 5:
+            image = image.rotate(-90, expand=True).transpose(Image.FLIP_LEFT_RIGHT)
+        elif orientation == 6:
+            image = image.rotate(-90, expand=True)
+        elif orientation == 7:
+            image = image.rotate(90, expand=True).transpose(Image.FLIP_LEFT_RIGHT)
+        elif orientation == 8:
+            image = image.rotate(90, expand=True)
+    except Exception as e:
+        warnings.warn(f"Fallback EXIF correction failed: {str(e)}")
+    
     return image
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 
@@ -705,7 +721,7 @@ def main():
             # Convert to PIL Image
             image = Image.open(uploaded_file)
             # Apply EXIF correction
-            # corrected_image = correct_exif_orientation(image)
+            corrected_image = correct_exif_orientation(image)
             img_array = np.array(image)
             
             with st.spinner("Analyzing traffic sign..."):
