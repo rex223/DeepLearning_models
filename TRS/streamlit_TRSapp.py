@@ -461,39 +461,43 @@ def get_sign_info(class_id):
     return sign_name, warning
 
 def display_prediction_results(image, prediction_results):
-    class_id, class_name, confidence = prediction_results
+    if not prediction_results:
+        st.warning("No predictions to display.")
+        return
+
+    st.markdown("### 🛑 Detected Traffic Signs")
     
-    col1, col2 = st.columns([2, 1])
-    
-    with col1:
-        try:
-            st.image(image, caption="Traffic Sign", width=500)
-        except Exception as e:
-            st.error(f"Error displaying image: {e}")
-    
-    with col2:
-        st.markdown("<div class='gradient-border'>", unsafe_allow_html=True)
-        st.markdown(f"<h2>Prediction Results</h2>", unsafe_allow_html=True)
-        st.markdown(f"<div class='prediction-result'><b>Sign Type:</b> {class_name}</div>", 
-                   unsafe_allow_html=True)
+    for i, result in enumerate(prediction_results):
+        class_id = result["class_id"]
+        class_name = result["class_name"]
+        confidence = result["confidence"]
+        cropped = result["cropped_image"]
+
+        col1, col2 = st.columns([2, 1])
         
-        # Creating a progress bar for confidence
-        st.markdown(f"<b>Confidence:</b> {confidence:.2%}", unsafe_allow_html=True)
-        st.progress(float(confidence))
+        with col1:
+            try:
+                st.image(cropped, caption=f"Sign {i+1}: {class_name}", use_column_width=True)
+            except Exception as e:
+                st.error(f"Error displaying image: {e}")
         
-        if confidence > 0.79:
-            certainty = "High Certainty"
-            color = "var(--success-color)"
-        elif confidence > 0.55:
-            certainty = "Moderate Certainty"
-            color = "var(--warning-color)"
-        else:
-            certainty = "Low Certainty"
-            color = "red"
+        with col2:
+            st.markdown(f"<h4>Prediction Results for Sign {i+1}</h4>", unsafe_allow_html=True)
+            st.markdown(f"<div><b>Sign Type:</b> {class_name}</div>", unsafe_allow_html=True)
+            st.markdown(f"<b>Confidence:</b> {confidence:.2%}", unsafe_allow_html=True)
+            st.progress(float(confidence))
+
+            if confidence > 0.79:
+                certainty = "High Certainty"
+                color = "green"
+            elif confidence > 0.55:
+                certainty = "Moderate Certainty"
+                color = "orange"
+            else:
+                certainty = "Low Certainty"
+                color = "red"
             
-        st.markdown(f"<p style='color: {color}; font-weight: bold;'>{certainty}</p>", 
-                   unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
+            st.markdown(f"<p style='color: {color}; font-weight: bold;'>{certainty}</p>", unsafe_allow_html=True)
 
 def process_image_and_predict(image, model):
     try:
@@ -513,27 +517,35 @@ def process_image_and_predict(image, model):
 
 def detect_and_classify(img_array, cnn_model, yolo_model):
     try:
-        # Run YOLO detection
         results = yolo_model(img_array, verbose=False)[0]
 
+        # Check if road signs were detected
         if len(results.boxes) == 0:
             st.warning("❌ No road sign detected in the image.")
             return (None, "No sign detected", 0.0)
 
-        # Get the first detected bounding box
-        box = results.boxes.xyxy[0].cpu().numpy().astype(int)
-        x1, y1, x2, y2 = box
+        all_predictions = []
 
-        # Crop the detected sign from the image
-        cropped = img_array[y1:y2, x1:x2]
+        # Loop all bounding boxes
+        for box in results.boxes.xyxy.cpu().numpy().astype(int):
+            x1, y1, x2, y2 = box
 
-        # Preprocess and classify using CNN
-        processed = preprocess_image(cropped)
-        class_id, confidence = predict_image(processed, cnn_model)
-        class_name = SIGN_CLASSES.get(class_id, f"Unknown (Class {class_id})")
+            # Crop detected sign 
+            cropped = img_array[y1:y2, x1:x2]
 
-        return (class_id, class_name, confidence)
+            # Preprocess and classify using CNN
+            processed = preprocess_image(cropped)
+            class_id, confidence = predict_image(processed, cnn_model)
+            class_name = SIGN_CLASSES.get(class_id, f"Unknown (Class {class_id})")
 
+            all_predictions.append({
+                "class_id": class_id,
+                "class_name": class_name,
+                "confidence": confidence,
+                "bbox": (x1, y1, x2, y2)
+            })
+        return all_predictions
+    
     except Exception as e:
         st.error(f"Error during detection/classification: {e}")
         return (None, "Detection Error", 0.0)
@@ -543,20 +555,24 @@ def correct_exif_orientation(image):
     try:
         exif = image._getexif()
         if exif is not None:
-            for orientation_tag, tag_value in ExifTags.TAGS.items():
-                if tag_value == 'Orientation':
-                    break
+            orientation_key = next((k for k, v in ExifTags.TAGS.items() if v == 'Orientation'), None)
+            if orientation_key is not None:
+                orientation = exif.get(orientation_key, None)
 
-            orientation = exif.get(orientation_tag, None)
-
-            if orientation == 3:
-                image = image.rotate(180, expand=True)
-            elif orientation == 6:
-                image = image.rotate(270, expand=True)
-            elif orientation == 8:
-                image = image.rotate(90, expand=True)
+                if orientation == 3:
+                    image = image.rotate(180, expand=True)
+                elif orientation == 6:
+                    image = image.rotate(270, expand=True)
+                elif orientation == 8:
+                    image = image.rotate(90, expand=True)
     except Exception as e:
-        print("EXIF orientation correction skipped:", e)
+        print("Manual EXIF orientation correction skipped:", e)
+# PIllow ImageOps EXIF Transpose
+    # This is a fallback in case the manual correction fails
+    try:
+        image = ImageOps.exif_transpose(image)
+    except Exception as e:
+        print("ImageOps.exif_transpose fallback skipped:", e)
 
     return image
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
@@ -586,38 +602,52 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-    # Create tabs for different input methods
-    tab1, tab2 = st.tabs(["📷 Camera Input", "🖼️ Image Upload"])
+        tab1, tab2 = st.tabs(["📷 Camera Input", "🖼️ Image Upload"])
 
-    with tab1:
-        st.markdown("<h2>Live Camera Recognition</h2>", unsafe_allow_html=True)
-        st.markdown("Position a traffic sign in front of your camera and capture the image.")
-        
-        # Initialize session state for camera toggle
-        if 'camera_on' not in st.session_state:
-            st.session_state.camera_on = False
-        
-        camera_col1, camera_col2 = st.columns([3, 1])
-        
-        with camera_col1:
-            # Toggle button
-            if st.button("Turn Camera On" if not st.session_state.camera_on else "Turn Camera Off"):
-                st.session_state.camera_on = not st.session_state.camera_on
-                st.rerun()  
-            if st.session_state.camera_on:
-                camera_img = st.camera_input("Take a picture of a traffic sign", key="camera")
-                
-                if camera_img is not None:
-                    # Convert to PIL Image
-                    image = Image.open(camera_img)
-                    corrected_image = correct_exif_orientation(image)
-                    img_array = np.array(image)
-                    
-                    with st.spinner("Analyzing traffic sign..."):
-                        prediction_results = detect_and_classify(img_array,model,yolo_model)
-                        
-                        # Display prediction
-                        display_prediction_results(img_array, prediction_results)
+        with tab1:
+            st.markdown("<h2>Live Camera Recognition</h2>", unsafe_allow_html=True)
+            st.markdown("Position a traffic sign in front of your camera and capture the image.")
+
+            # Initialize session state for camera toggle
+            if 'camera_on' not in st.session_state:
+                st.session_state.camera_on = False
+
+            camera_col1, camera_col2 = st.columns([3, 1])
+
+            with camera_col1:
+                # Toggle camera on/off
+                if st.button("Turn Camera On" if not st.session_state.camera_on else "Turn Camera Off"):
+                    st.session_state.camera_on = not st.session_state.camera_on
+                    st.rerun()
+
+                if st.session_state.camera_on:
+                    camera_img = st.camera_input("Take a picture of a traffic sign", key="camera")
+
+                    if camera_img is not None:
+                        # Load and correct image
+                        image = Image.open(camera_img)
+                        corrected_image = correct_exif_orientation(image)
+                        img_array = np.array(corrected_image)
+
+                        with st.spinner("🔍 Detecting and classifying traffic signs..."):
+                            predictions = detect_and_classify(img_array, cnn_model, yolo_model)
+
+                            # Check if any predictions were returned
+                            if isinstance(predictions, list) and len(predictions) > 0:
+                                for pred in predictions:
+                                    x1, y1, x2, y2 = pred["bbox"]
+                                    cropped_img = img_array[y1:y2, x1:x2]
+
+                                    # Display each prediction
+                                    display_prediction_results(cropped_img, (
+                                        pred["class_id"],
+                                        pred["class_name"],
+                                        pred["confidence"]
+                                    ))
+                            else:
+                                st.warning("No traffic signs detected.")
+
+
         
         with camera_col2:
             st.markdown("""
