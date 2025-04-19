@@ -705,8 +705,8 @@ def main():
             # Convert to PIL Image
             image = Image.open(uploaded_file)
             # Apply EXIF correction
-            corrected_image = correct_exif_orientation(image)
-            img_array = np.array(corrected_image)
+            # corrected_image = correct_exif_orientation(image)
+            img_array = np.array(image)
             
             with st.spinner("Analyzing traffic sign..."):
                 prediction_results = process_image_and_predict(img_array, model)
