@@ -460,44 +460,45 @@ def get_sign_info(class_id):
     warning = WARNING_MESSAGES.get(class_id, "No warning information")
     return sign_name, warning
 
-def display_prediction_results(image, prediction_results):
+def display_prediction_results(prediction_results):
     if not prediction_results:
         st.warning("No predictions to display.")
         return
 
-    st.markdown("### 🛑 Detected Traffic Signs")
-    
     for i, result in enumerate(prediction_results):
         class_id = result["class_id"]
         class_name = result["class_name"]
         confidence = result["confidence"]
-        cropped = result["cropped_image"]
+        cropped = result.get("cropped_image", None)
 
         col1, col2 = st.columns([2, 1])
-        
+
         with col1:
-            try:
-                st.image(cropped, caption=f"Sign {i+1}: {class_name}", use_column_width=True)
-            except Exception as e:
-                st.error(f"Error displaying image: {e}")
-        
+            if cropped is not None:
+                st.image(cropped, caption=f"Detected Sign {i+1}", use_column_width=True)
+            else:
+                st.warning("❌ No cropped image available.")
+
         with col2:
-            st.markdown(f"<h4>Prediction Results for Sign {i+1}</h4>", unsafe_allow_html=True)
-            st.markdown(f"<div><b>Sign Type:</b> {class_name}</div>", unsafe_allow_html=True)
+            st.markdown(f"<h2>Prediction Results</h2>", unsafe_allow_html=True)
+            st.markdown(f"<div class='prediction-result'><b>Sign Type:</b> {class_name}</div>", 
+                       unsafe_allow_html=True)
             st.markdown(f"<b>Confidence:</b> {confidence:.2%}", unsafe_allow_html=True)
             st.progress(float(confidence))
-
+            
             if confidence > 0.79:
                 certainty = "High Certainty"
-                color = "green"
+                color = "var(--success-color)"
             elif confidence > 0.55:
                 certainty = "Moderate Certainty"
-                color = "orange"
+                color = "var(--warning-color)"
             else:
                 certainty = "Low Certainty"
                 color = "red"
-            
-            st.markdown(f"<p style='color: {color}; font-weight: bold;'>{certainty}</p>", unsafe_allow_html=True)
+                
+            st.markdown(f"<p style='color: {color}; font-weight: bold;'>{certainty}</p>", 
+                       unsafe_allow_html=True)
+
 
 def process_image_and_predict(image, model):
     try:
