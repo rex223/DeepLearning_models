@@ -635,16 +635,7 @@ def main():
 
                         # Check if any predictions were returned
                         if isinstance(predictions, list) and len(predictions) > 0:
-                            for pred in predictions:
-                                x1, y1, x2, y2 = pred["bbox"]
-                                cropped_img = img_array[y1:y2, x1:x2]
-
-                                # Display each prediction
-                                display_prediction_results(cropped_img, (
-                                    pred["class_id"],
-                                    pred["class_name"],
-                                    pred["confidence"]
-                                ))
+                            display_prediction_results(predictions)
                         else:
                             st.warning("No traffic signs detected.")
 
