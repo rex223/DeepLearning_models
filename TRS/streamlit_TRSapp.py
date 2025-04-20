@@ -678,9 +678,8 @@ def main():
         
         with st.spinner("Analyzing traffic sign..."):
             prediction_results = process_image_and_predict(img_array, model)
-            
             # Display prediction using the single prediction display function
-           display_single_prediction(img_array, prediction_results)
+            display_single_prediction(img_array, prediction_results)
     
     # Add an FAQ section at the bottom
     with st.expander("ℹ️ FAQs about Traffic Sign Recognition"):
