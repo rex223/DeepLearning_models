@@ -662,66 +662,9 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-    tab1, tab2 = st.tabs(["📷 Camera Input", "🖼️ Image Upload"])
+    tab2 = st.tabs(["📷 Camera Input", "🖼️ Image Upload"])
 
-    with tab1:
-        st.markdown("<h2>Live Camera Recognition</h2>", unsafe_allow_html=True)
-        st.markdown("Position a traffic sign in front of your camera and capture the image.")
 
-        # Initialize session state for camera toggle
-        if 'camera_on' not in st.session_state:
-            st.session_state.camera_on = False
-
-        camera_col1, camera_col2 = st.columns([3, 1])
-
-        with camera_col1:
-            model_choice = st.radio(
-                "Choose Model for Detection:",
-                ["Only CNN", "YOLO + CNN"],
-                index=0,
-                key="camera_model_choice"
-            )
-            # Toggle camera on/off
-            if st.button("Turn Camera On" if not st.session_state.camera_on else "Turn Camera Off"):
-                st.session_state.camera_on = not st.session_state.camera_on
-                st.rerun()
-
-            if st.session_state.camera_on:
-                camera_img = st.camera_input("Take a picture of a traffic sign", key="camera")
-
-                if camera_img is not None:
-                    # Load and correct image
-                    image = Image.open(camera_img)
-                    corrected_image = correct_exif_orientation(image)
-                    img_array = np.array(corrected_image)
-                    if img_array.shape[-1] == 4:
-                        img_array = img_array[:, :, :3]
-
-                    with st.spinner("🔍 Detecting and classifying traffic signs..."):
-                        #Detection by user selection
-                        if model_choice == "YOLO + CNN":
-                            predictions = detect_and_classify(img_array, model, yolo_model)
-                        else:
-                            predictions = process_image_and_predict(img_array, model)
-
-                        # Display results
-                        if isinstance(predictions, list) and len(predictions) > 0:
-                            display_prediction_results(predictions)
-                        else:
-                            st.warning("No traffic signs detected.")
-        
-        with camera_col2:
-            st.markdown("""
-            <div style='padding: 20px; background-color: var(--secondary-bg-color); border-radius: 10px;'>
-                <h4>Instructions:</h4>
-                <ul>
-                    <li>Ensure good lighting</li>
-                    <li>Center the sign in frame</li>
-                    <li>Hold camera steady</li>
-                </ul>
-            </div>
-            """, unsafe_allow_html=True)
-    
     with tab2:
         st.markdown("<h2>Image Upload Recognition</h2>", unsafe_allow_html=True)
         st.markdown("Upload an image containing a traffic sign for recognition.")
