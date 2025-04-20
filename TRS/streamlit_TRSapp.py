@@ -662,28 +662,25 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-    tab2 = st.tabs(["📷 Camera Input", "🖼️ Image Upload"])
-
-
-    with tab2:
-        st.markdown("<h2>Image Upload Recognition</h2>", unsafe_allow_html=True)
-        st.markdown("Upload an image containing a traffic sign for recognition.")
+    # tab2 = st.tabs(["📷 Camera Input", "🖼️ Image Upload"])
+    st.markdown("<h2>Image Upload Recognition</h2>", unsafe_allow_html=True)
+    st.markdown("Upload an image containing a traffic sign for recognition.")
         
         # File uploader
-        uploaded_file = st.file_uploader("Choose an image file", type=["jpg", "jpeg", "png"])
+    uploaded_file = st.file_uploader("Choose an image file", type=["jpg", "jpeg", "png"])
         
-        if uploaded_file is not None:
-            # Convert to PIL Image
-            image = Image.open(uploaded_file)
-            # Apply EXIF correction
-            corrected_image = correct_exif_orientation(image)
-            img_array = np.array(image)
+    if uploaded_file is not None:
+        # Convert to PIL Image
+        image = Image.open(uploaded_file)
+        # Apply EXIF correction
+        corrected_image = correct_exif_orientation(image)
+        img_array = np.array(image)
+        
+        with st.spinner("Analyzing traffic sign..."):
+            prediction_results = process_image_and_predict(img_array, model)
             
-            with st.spinner("Analyzing traffic sign..."):
-                prediction_results = process_image_and_predict(img_array, model)
-                
-                # Display prediction using the single prediction display function
-                display_single_prediction(img_array, prediction_results)
+            # Display prediction using the single prediction display function
+           display_single_prediction(img_array, prediction_results)
     
     # Add an FAQ section at the bottom
     with st.expander("ℹ️ FAQs about Traffic Sign Recognition"):
