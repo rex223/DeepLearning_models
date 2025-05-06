@@ -643,7 +643,7 @@ def main():
         return
 
     model = models['cnn']
-    yolo_model = models['yolo']
+    # yolo_model = models['yolo']
     
     st.markdown("<h1 style='text-align: center;'>Traffic Sign Recognition System</h1>", unsafe_allow_html=True)
     
@@ -669,8 +669,11 @@ def main():
     if uploaded_file is not None:
         # Convert to PIL Image
         image = Image.open(uploaded_file)
+        
+        image_resized = image.resize((800, 800))
+        image_resized.show()
         # Apply EXIF correction
-        corrected_image = correct_exif_orientation(image)
+        # corrected_image = correct_exif_orientation(image)
         img_array = np.array(image)
         
         with st.spinner("Analyzing traffic sign..."):
