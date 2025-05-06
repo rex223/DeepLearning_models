@@ -263,7 +263,6 @@ def load_models():
         st.error(f"Error loading models: {e}")
         return None
 def preprocess_image(img):
-    # Resize, normalize and expand dims
     IMG_SIZE=32
     img = cv2.resize(img, (IMG_SIZE, IMG_SIZE))
     # img=cv2.imread(img)
@@ -274,7 +273,7 @@ def display_image(img):
     st.image(img, caption="Input Image", use_container_width=True)
     st.write("Image displayed successfully.")
     
-# Index mapping for your model
+# Index mapping 
 train_indices_class = {
     '0': 0, '1': 1, '10': 2, '11': 3, '12': 4, '13': 5, '14': 6, '15': 7, '16': 8, '17': 9, 
     '18': 10, '19': 11, '2': 12, '20': 13, '21': 14, '22': 15, '23': 16, '24': 17, '25': 18, 
@@ -407,11 +406,9 @@ def predict_image(img, model=None, confidence_threshold=0.5):
         print("❌ Error: Image not found!")
         return -1, 0.0
     
-    # If model isn't provided, load it
     if model is None:
         return -1, 0.0
     
-    # Ensure image is in correct shape with batch dimension
     if len(img.shape) == 3:
         img = np.expand_dims(img, axis=0)
     
@@ -460,48 +457,48 @@ def get_sign_info(class_id):
     warning = WARNING_MESSAGES.get(class_id, "No warning information")
     return sign_name, warning
 
-def display_prediction_results(prediction_results):
-    """
-    Display prediction results from YOLO + CNN pipeline (camera path)
-    prediction_results: List of dictionaries with prediction information
-    """
-    if not prediction_results:
-        st.warning("No predictions to display.")
-        return
+# def display_prediction_results(prediction_results):
+#     """
+#     Display prediction results from YOLO + CNN pipeline (camera path)
+#     prediction_results: List of dictionaries with prediction information
+#     """
+#     if not prediction_results:
+#         st.warning("No predictions to display.")
+#         return
 
-    for i, result in enumerate(prediction_results):
-        class_id = result["class_id"]
-        class_name = result["class_name"]
-        confidence = result["confidence"]
-        cropped = result.get("cropped_image", None)
+#     for i, result in enumerate(prediction_results):
+#         class_id = result["class_id"]
+#         class_name = result["class_name"]
+#         confidence = result["confidence"]
+#         cropped = result.get("cropped_image", None)
 
-        col1, col2 = st.columns([2, 1])
+#         col1, col2 = st.columns([2, 1])
 
-        with col1:
-            if cropped is not None:
-                st.image(cropped, caption=f"Detected Sign {i+1}", use_container_width=True)
-            else:
-                st.warning("❌ No cropped image available.")
+#         with col1:
+#             if cropped is not None:
+#                 st.image(cropped, caption=f"Detected Sign {i+1}", use_container_width=True)
+#             else:
+#                 st.warning("❌ No cropped image available.")
 
-        with col2:
-            st.markdown(f"<h2>Prediction Results</h2>", unsafe_allow_html=True)
-            st.markdown(f"<div class='prediction-result'><b>Sign Type:</b> {class_name}</div>", 
-                       unsafe_allow_html=True)
-            st.markdown(f"<b>Confidence:</b> {confidence:.2%}", unsafe_allow_html=True)
-            st.progress(float(confidence))
+#         with col2:
+#             st.markdown(f"<h2>Prediction Results</h2>", unsafe_allow_html=True)
+#             st.markdown(f"<div class='prediction-result'><b>Sign Type:</b> {class_name}</div>", 
+#                        unsafe_allow_html=True)
+#             st.markdown(f"<b>Confidence:</b> {confidence:.2%}", unsafe_allow_html=True)
+#             st.progress(float(confidence))
             
-            if confidence > 0.79:
-                certainty = "High Certainty"
-                color = "var(--success-color)"
-            elif confidence > 0.55:
-                certainty = "Moderate Certainty"
-                color = "var(--warning-color)"
-            else:
-                certainty = "Low Certainty"
-                color = "red"
+#             if confidence > 0.79:
+#                 certainty = "High Certainty"
+#                 color = "var(--success-color)"
+#             elif confidence > 0.55:
+#                 certainty = "Moderate Certainty"
+#                 color = "var(--warning-color)"
+#             else:
+#                 certainty = "Low Certainty"
+#                 color = "red"
                 
-            st.markdown(f"<p style='color: {color}; font-weight: bold;'>{certainty}</p>", 
-                       unsafe_allow_html=True)
+#             st.markdown(f"<p style='color: {color}; font-weight: bold;'>{certainty}</p>", 
+#                        unsafe_allow_html=True)
 
 
 def display_single_prediction(img_array, prediction_result):
@@ -558,83 +555,83 @@ def process_image_and_predict(image, model):
         st.error(f"Error during prediction: {e}")
         return (None, "Error in prediction", 0.0)
 
-def detect_and_classify(img_array, cnn_model, yolo_model):
-    try:
-        results = yolo_model(img_array, verbose=False)[0]
+# def detect_and_classify(img_array, cnn_model, yolo_model):
+#     try:
+#         results = yolo_model(img_array, verbose=False)[0]
 
-        # Check if road signs were detected
-        if len(results.boxes) == 0:
-            st.warning("❌ No road sign detected in the image.")
-            return []
+#         # Check if road signs were detected
+#         if len(results.boxes) == 0:
+#             st.warning("❌ No road sign detected in the image.")
+#             return []
 
-        all_predictions = []
+#         all_predictions = []
 
-        # Loop all bounding boxes
-        for box in results.boxes.xyxy.cpu().numpy().astype(int):
-            x1, y1, x2, y2 = box
+#         # Loop all bounding boxes
+#         for box in results.boxes.xyxy.cpu().numpy().astype(int):
+#             x1, y1, x2, y2 = box
 
-            # Crop detected sign 
-            cropped = img_array[y1:y2, x1:x2]
+#             # Crop detected sign 
+#             cropped = img_array[y1:y2, x1:x2]
 
-            # Preprocess and classify using CNN
-            processed = preprocess_image(cropped)
-            class_id, confidence = predict_image(processed, cnn_model)
-            class_name = SIGN_CLASSES.get(class_id, f"Unknown (Class {class_id})")
+#             # Preprocess and classify using CNN
+#             processed = preprocess_image(cropped)
+#             class_id, confidence = predict_image(processed, cnn_model)
+#             class_name = SIGN_CLASSES.get(class_id, f"Unknown (Class {class_id})")
 
-            all_predictions.append({
-                "class_id": class_id,
-                "class_name": class_name,
-                "confidence": confidence,
-                "bbox": (x1, y1, x2, y2),
-                "cropped_image": cropped  # Include the cropped image in results
-            })
-        return all_predictions
+#             all_predictions.append({
+#                 "class_id": class_id,
+#                 "class_name": class_name,
+#                 "confidence": confidence,
+#                 "bbox": (x1, y1, x2, y2),
+#                 "cropped_image": cropped  # Include the cropped image in results
+#             })
+#         return all_predictions
     
-    except Exception as e:
-        st.error(f"Error during detection/classification: {e}")
-        return []
+#     except Exception as e:
+#         st.error(f"Error during detection/classification: {e}")
+#         return []
     
 # EXIF Correction Function
-def correct_exif_orientation(image):
-    """
-    Corrects image orientation based on EXIF data.
-    Returns the corrected PIL Image.
-    """
-    # Method 1: Use Pillow's built-in transpose (most reliable)
-    try:
-        image = ImageOps.exif_transpose(image)
-        return image
-    except Exception as e:
-        warnings.warn(f"Primary EXIF correction failed: {str(e)}")
+# def correct_exif_orientation(image):
+#     """
+#     Corrects image orientation based on EXIF data.
+#     Returns the corrected PIL Image.
+#     """
+#     # Method 1: Use Pillow's built-in transpose (most reliable)
+#     try:
+#         image = ImageOps.exif_transpose(image)
+#         return image
+#     except Exception as e:
+#         warnings.warn(f"Primary EXIF correction failed: {str(e)}")
     
-    # Method 2: Manual fallback (only if first method fails)
-    try:
-        if not hasattr(image, '_getexif') or image._getexif() is None:
-            return image
+#     # Method 2: Manual fallback (only if first method fails)
+#     try:
+#         if not hasattr(image, '_getexif') or image._getexif() is None:
+#             return image
             
-        exif = image._getexif()
-        orientation_key = [k for k, v in ExifTags.TAGS.items() if v == 'Orientation'][0]
-        orientation = exif.get(orientation_key, 1)  # Default to 1 (normal)
+#         exif = image._getexif()
+#         orientation_key = [k for k, v in ExifTags.TAGS.items() if v == 'Orientation'][0]
+#         orientation = exif.get(orientation_key, 1)  # Default to 1 (normal)
 
-        # Handle all possible orientation cases
-        if orientation == 2:
-            image = image.transpose(Image.FLIP_LEFT_RIGHT)
-        elif orientation == 3:
-            image = image.rotate(180)
-        elif orientation == 4:
-            image = image.rotate(180).transpose(Image.FLIP_LEFT_RIGHT)
-        elif orientation == 5:
-            image = image.rotate(-90, expand=True).transpose(Image.FLIP_LEFT_RIGHT)
-        elif orientation == 6:
-            image = image.rotate(-90, expand=True)
-        elif orientation == 7:
-            image = image.rotate(90, expand=True).transpose(Image.FLIP_LEFT_RIGHT)
-        elif orientation == 8:
-            image = image.rotate(90, expand=True)
-    except Exception as e:
-        warnings.warn(f"Fallback EXIF correction failed: {str(e)}")
+#         # Handle all possible orientation cases
+#         if orientation == 2:
+#             image = image.transpose(Image.FLIP_LEFT_RIGHT)
+#         elif orientation == 3:
+#             image = image.rotate(180)
+#         elif orientation == 4:
+#             image = image.rotate(180).transpose(Image.FLIP_LEFT_RIGHT)
+#         elif orientation == 5:
+#             image = image.rotate(-90, expand=True).transpose(Image.FLIP_LEFT_RIGHT)
+#         elif orientation == 6:
+#             image = image.rotate(-90, expand=True)
+#         elif orientation == 7:
+#             image = image.rotate(90, expand=True).transpose(Image.FLIP_LEFT_RIGHT)
+#         elif orientation == 8:
+#             image = image.rotate(90, expand=True)
+#     except Exception as e:
+#         warnings.warn(f"Fallback EXIF correction failed: {str(e)}")
     
-    return image
+#     return image
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 
 
@@ -689,7 +686,7 @@ def main():
         A: The system can identify 43 different classes of traffic signs including stop signs, speed limits, yield signs, and many more.</p>
         
         <p><b>Q: How accurate is the recognition?</b><br>
-        A: The accuracy depends on various factors including image quality, lighting conditions, and sign visibility. For best results, ensure the sign is clearly visible and well-lit.Though the CNN's accuracy is 95.31%</p>
+        A: The accuracy depends on various factors including image quality, lighting conditions, and sign visibility. For best results, ensure the sign is clearly visible and well-lit.Though the CNN's accuracy is 95%+</p>
         
         <p><b>Q: Can I use images from any camera?</b><br>
         A: Yes, you can either use your device's camera directly through the app or upload images taken from any camera.</p>

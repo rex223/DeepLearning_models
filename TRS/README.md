@@ -1,14 +1,14 @@
 # 🚗 Traffic Sign Recognition System (GTSRB-Based)
 
 An end-to-end deep learning pipeline for **real-time German traffic sign recognition**, built using **TensorFlow/Keras** and **opencv-python**, with a modern **Streamlit web app** interface.  
-This project is inspired by the [GTSRB (German Traffic Sign Recognition Benchmark)](https://benchmark.ini.rub.de/) challenge and focuses on **accurately classifying road signs** from real-world images or camera input.
+This project is inspired by the [GTSRB (German Traffic Sign Recognition Benchmark)](https://benchmark.ini.rub.de/) challenge and focuses on **accurately classifying road signs** from real-world images.
 
 ---
 
 ## 🔥 Features
 
 - ✅ Trained on the official **GTSRB dataset** (43 classes of German signs)
-- 🧠 Uses a **CNN classifier** trained from scratch with 96%+ accuracy
+- 🧠 Uses a **CNN classifier** trained from scratch with 95%+ accuracy
 - 🕹️ **Streamlit web app** for easy testing and user interaction
 
 ---
@@ -17,7 +17,7 @@ This project is inspired by the [GTSRB (German Traffic Sign Recognition Benchmar
 
 🌐 **Try it here:**  
 [🔗 Open the Web App](https://gtrsbchallenge-v1pred.streamlit.app/)  
-> Upload or take a photo of a German traffic sign and get real-time predictions!
+> Upload a photo of a German traffic sign and get real-time predictions!
 
 ---
 
