@@ -670,7 +670,7 @@ def main():
         # Convert to PIL Image
         image = Image.open(uploaded_file)
         
-        image_resized = image.resize((800, 800))
+        image_resized = image.resize((600, 400))
         image_resized.show()
         # Apply EXIF correction
         # corrected_image = correct_exif_orientation(image)
