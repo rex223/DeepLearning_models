@@ -19,6 +19,8 @@ This project is inspired by the [GTSRB (German Traffic Sign Recognition Benchmar
 [🔗 Open the Web App](https://gtrsbchallenge-v1pred.streamlit.app/)  
 > Upload a photo of a German traffic sign and get real-time predictions!
 
+[🔗 PPT + DEMO link](https://www.canva.com/design/DAGmrtOFxFk/wDazzaR3fPo37WVM9QX2Wg/edit?utm_content=DAGmrtOFxFk&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)  
+
 ---
 
 ## 🚀 Project Structure
