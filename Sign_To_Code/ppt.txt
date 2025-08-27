@@ -1,0 +1,298 @@
+
+# Sign-to-Code: Product Requirements Document (Refined)
+
+## Executive Summary
+
+Product Name: Sign-to-Code
+
+An AI-first gesture-to-IDE control prototype that maps simple hand gestures (captured using a standard webcam) to keyboard commands. This PRD is tailored for a 36-hour hackathon MVP and includes a clear technical stack, implementation steps, validation plan, and attractive deliverables for judges and early users.
+
+Core focus: high-accuracy, low-latency gesture classification (5 gestures) and a polished demo experience.
+
+---
+
+## What I'll deliver in this PRD update
+
+- A concise, hackathon-feasible technical stack with specific library versions and alternatives
+- A practical implementation plan aligned to a 36-hour timeline
+- Clear inputs/outputs, success criteria, and validation approach (metrics and tests)
+- Attractive demo items: README, sample video, onboarding, branded visuals
+- A minimal roadmap for future improvements (clearly marked out-of-scope)
+
+## Quick checklist (requirements extracted from your asks)
+
+1. Add more technical stack implementation details — Done
+2. Keep the project feasible for a 36-hour hackathon — Done (36-hour timeline included)
+3. Make the project more attractive (polish, demo, README, logo) — Done (deliverables added)
+4. Emphasize AI/ML (your area of strength) while keeping other components minimal — Done
+
+---
+
+## Target Users
+
+- Primary: Deaf / Hard-of-Hearing developers
+- Secondary: Developers with RSI, ergonomics-focused users, presenters/streamers
+
+## MVP Success Criteria (Hackathon)
+
+- Working demo with 5 gestures mapped to IDE commands
+- Offline model accuracy on validation set: ≥90% (baseline RandomForest or small NN)
+- Real-time latency (frame→action): <200 ms on a typical laptop CPU
+- Stable demo with a polished UI and on-screen confidence/feedback
+
+---
+
+## Technical Stack (detailed)
+
+Core (recommended for hackathon MVP):
+
+- Language: Python 3.10+ (stable, broad ML support)
+- CV: OpenCV (4.8.x)
+- Hand Landmark Detection: MediaPipe Hands (latest compatible stable; e.g., 0.10.x)
+- ML / Modeling: scikit-learn (RandomForest baseline), numpy, pandas
+- Lightweight NN option (optional): TensorFlow/Keras or PyTorch (for a small MLP/CNN)
+- Keyboard control / IDE integration: pyautogui (cross-platform), or native OS key events for lower latency if needed
+- GUI (MVP): PySimpleGUI (wraps Tkinter but looks nicer quickly) or Tkinter if minimal dependency
+- Packaging (post-hackathon): PyInstaller for single-binary builds
+- Optional mobile/edge: TFLite conversion for on-device inference (future)
+
+Dev & Productivity:
+
+- Virtual env: venv or conda
+- Linting: flake8
+- Testing: pytest (unit tests for feature extractor and classifier)
+- Repo and docs: GitHub, README with quickstart
+
+Hardware & runtime notes:
+
+- Works with built-in webcams (720p+ recommended)
+- GPU not required for MVP; laptop CPU should suffice for MediaPipe + RF at 30 FPS with optimizations
+
+Recommended dependency versions (example):
+
+- mediapipe==0.10.3
+- opencv-python==4.8.1.78
+- scikit-learn==1.3.0
+- numpy==1.24.3
+- pyautogui==0.9.54
+- PySimpleGUI==4.60.4 (optional)
+
+---
+
+## Architecture (concise)
+
+1) Camera (OpenCV) captures frames → 2) MediaPipe Hands extracts 21 landmarks → 3) Feature extractor computes normalized features (angles, distances, ratios / or raw normalized coordinates) → 4) Classifier (RandomForest or small NN) returns class + confidence → 5) Command executor applies confidence threshold & cooldown → 6) UI displays feedback and injects keyboard events (pyautogui)
+
+Notes:
+
+- Keep pipeline modular so model or feature steps can be swapped during hackathon (RF → quick to train; NN → more accurate if time allows).
+- Use normalized landmark coordinates (relative to hand bounding box) for invariance to distance and camera resolution.
+
+---
+
+## Minimal Data & Modeling Plan (fast, hackathon-friendly)
+
+Data:
+
+- Collect 30s–60s per gesture from 2–4 people (diverse angles/lighting) during hackathon; aim for 300–1000 frame samples per gesture.
+- Save landmarks + meta (frame timestamp, handness, bounding box).
+
+Features (two quick options):
+
+- Option A (fast, interpretable): engineered features — finger angles, pairwise distances, normalized coordinates → 50–100 features → RandomForest baseline (fast training)
+- Option B (if time permits): small MLP on flattened normalized coordinates or 1D-CNN on temporal windows to capture micro-movements
+
+Training & Validation:
+
+- Split by recording/session (not frame) to avoid overfitting to a single person or position (e.g., 80/20)
+- Use cross-validation ideally across participants
+- Aim for precision/recall per-class >= 0.9; report confusion matrix and per-class support
+
+Quick hyperparameters:
+
+- RandomForest: n_estimators=200, max_depth=None, random_state=42
+- MLP: 2 hidden layers (128, 64), relu, softmax output, early stopping
+
+Evaluation Metrics:
+
+- Accuracy, per-class precision/recall, false positive rate, average inference latency (ms)
+
+---
+
+## Implementation Plan — 36-hour hackathon schedule (granular)
+
+Hours 0–2: Project setup
+
+- Create venv, install dependencies, initialize repo, add README + brief pitch
+- Build skeleton modules: src/{camera,feature_extractor,model,executor,gui}
+
+Hours 2–8: Data collection + live pipeline
+
+- Implement camera capture + MediaPipe landmarks display
+- Implement feature extractor (normalized coordinates + simple distances)
+- Quick data collector UI to mark gesture label and save samples
+
+Hours 8–14: Modeling baseline
+
+- Train RandomForest baseline on collected data
+- Evaluate quickly; iterate on features if class confusion
+- Save model artifact (joblib)
+
+Hours 14–22: Integration and UI
+
+- Load model in pipeline, run real-time inference
+- Implement pyautogui command mapping with cooldown and confidence threshold
+- Build small polished UI (PySimpleGUI) showing camera feed, landmarks, detected gesture, confidence, and a Start/Stop button
+
+Hours 22–30: Polish, reliability, and testing
+
+- Add cooldown, debouncing, and a short command confirmation animation
+- Add unit tests for feature extractor and a small end-to-end smoke test
+- Record a 60–90s demo walkthrough (screen + webcam) with captions
+
+Hours 30–36: Final demo, README, packaging
+
+- Prepare README (how to run, requirements, demo gif or link)
+- Generate short demo video and 1–2 slides for judges
+- Create a simple installer or zip with instructions
+
+---
+
+## Attractive Deliverables (make it stand out)
+
+- Polished README with quickstart and one-minute setup
+- Demo video (60–90s) showing real gestures and IDE interaction
+- Onboarding overlay: first-run quick tutorial that shows gestures with sample images
+- Branded logo and theme colors for the UI (simple 1–2 color SVG)
+- A sample VS Code workspace project that demonstrates Run/Save/Comment commands triggered by gestures
+- Small homepage or markdown landing page with screenshots and accessibility statement
+
+---
+
+## Engineering Contract (2–4 bullets)
+
+- Inputs: single webcam feed (640x480+), per-frame landmarks from MediaPipe
+- Output: keyboard events injected to the OS/IDE and a UI state containing (gesture, confidence, timestamp)
+- Error modes: no-hand-detected (no action), low-confidence (no action), camera disconnected (UI error state)
+- Success: gesture command executed only when confidence >= threshold and cooldown state allows
+
+---
+
+## Edge Cases & Mitigations
+
+- Multiple hands in frame: filter to the primary hand (closest / first detected)
+- Lighting changes: normalize coordinates and encourage users to use front-lit setup; add simple brightness check and prompt
+- False positives: use cooldown (0.8–1.2s) and require stable prediction for N consecutive frames (N=3)
+- Background motion: add simple temporal smoothing on landmarks
+
+---
+
+## Tests & Validation (minimal but effective)
+
+- Unit tests: feature extraction produces expected normalized vectors for fixed landmarks
+- Integration: smoke test that runs camera→model→executor for a prerecorded sample
+- Performance: script that measures average inference latency over 500 frames
+
+---
+
+## Future / Post-Hackathon Roadmap (recommended but out-of-scope for 36h)
+
+- Per-user personalization & incremental learning
+- Expand gesture vocabulary (10+ gestures), two-hand gestures
+- Support for VS Code extension for richer IDE interactions (API-level integration)
+- On-device optimized model (TFLite) and mobile/web demo
+- Telemetry & analytics dashboard (opt-in) for usage and accessibility metrics
+
+---
+
+## Minimal README quickstart (to include in repo)
+
+1) Create and activate virtualenv (Windows PowerShell):
+
+```powershell
+python -m venv .venv; .\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+2) Run demo:
+
+```powershell
+python main.py
+```
+
+3) Data collection (optional):
+
+```powershell
+python -m src.data_collector --gesture fist --duration 30
+```
+
+---
+
+## Requirements coverage (mapping to your asks)
+
+- Add more tech stack implementation: Done — detailed stack + versions + alternatives
+- Keep hackathon feasibility: Done — 36-hour schedule and MVP scope
+- Make project attractive: Done — demo, README, logo, guided onboarding
+
+---
+
+## Data Procurement
+
+Purpose: provide a compact, action-ready plan for collecting, labeling, storing, and validating gesture data during the 36‑hour hackathon.
+
+1) Goals & success metrics
+- Train a robust 5-class gesture classifier (fist, palm, thumbs-up, peace, pointing).
+- Hackathon targets: per-class accuracy ≥ 0.90 on held-out participants; average inference latency <200 ms.
+
+2) Data types to collect
+- Primary: MediaPipe hand landmarks per frame (21 landmarks × (x,y,z)), handedness, and bounding box.
+- Optional: short RGB clips for debugging and demo (store sparingly, with consent).
+- Metadata: participant_id, session_id, gesture_label, fps, resolution, lighting note, timestamp.
+
+3) Minimal quantities (practical)
+- Minimum: ~300 frames/gesture across 2–4 participants (≈1,500 frames total).
+- Target if time allows: 500–1,000 frames/gesture across 4–6 participants.
+
+4) Collection protocol (fast, repeatable)
+- Resolution: 640×480, stable camera. Use a simple capture UI to label sessions in real time.
+- Session flow: countdown (3..2..1), record 20–60s per gesture with small orientation/distance variations.
+- Perform multiple short sessions (easier to diversify) rather than a single long take.
+
+5) Labeling & storage schema
+- Save per-frame JSONL records with keys: participant_id, session_id, frame_idx, timestamp, gesture, handedness, landmarks, bbox, mp_confidence.
+- Organize files: data/raw/participant_{id}/session_{id}/landmarks.jsonl (+ optional video.mp4).
+- Maintain a manifest.csv summarizing session counts and metadata.
+
+6) Preprocessing & features (quick options)
+- Normalize landmarks per frame: translate by wrist origin, scale by hand size (bounding box or landmark distance), optionally rotate to canonical orientation.
+- Feature choices: (A) engineered: angles and pairwise normalized distances (~50–100 features) for RandomForest; (B) raw: flattened normalized coords (63 values) for a small MLP.
+- Temporal smoothing / stability: require N consecutive identical predictions (N=3) or use short-window majority voting.
+
+7) Augmentation (light-touch)
+- Coordinate jitter, small rotations/scales, brightness variation for optional RGB samples. Avoid flips that change semantics unless gesture-invariant.
+
+8) Train/validation/test split strategy
+- Split by session/participant (not by frame). Suggested: 70% train / 15% val / 15% test with at least one held-out participant in test to measure generalization.
+
+9) Quality checks & validation
+- Per-session: ensure minimum frames, average MediaPipe confidence >0.5, no corrupt records.
+- Global: class balance report, confusion matrix after baseline training, and spot-check sample frames/videos.
+- Automate checks: scripts that output counts.csv, avg_confidence.csv, and flag low-quality sessions.
+
+10) Privacy & consent
+- Prefer landmarks over raw video to reduce PII exposure. If saving video, get explicit consent and store it separately with limited access.
+- Use participant IDs only; do not store names/emails in raw data.
+
+11) Tools & quick commands (Windows PowerShell)
+```powershell
+python -m venv .venv; .\.venv\Scripts\Activate.ps1
+pip install mediapipe opencv-python numpy pandas pysimplegui tqdm
+```
+- Capture: OpenCV + MediaPipe; lightweight UI in PySimpleGUI or Tkinter for labeling during capture.
+- Save landmarks as gzipped JSONL for compactness if needed.
+
+12) Hackathon checklist (actionable)
+- [ ] Implement minimal capture UI that labels and writes per-frame landmarks to JSONL.
+- [ ] Collect ≥300 frames/gesture from ≥2 people (aim for 4 if time allows).
+- [ ] Train RandomForest on engineered features; validate on held-out participant.
+- [ ] Add smoothing + cooldown in inference loop and test live with an IDE.
